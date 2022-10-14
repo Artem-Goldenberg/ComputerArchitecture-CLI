@@ -95,5 +95,5 @@
 Инструкция появится позже
 
 # Авторы
-* [Артем Голденберг](https://github.com/Artem-Goldenberg)
+* [Артём Ибрагимов](https://github.com/Artem-Goldenberg)
 * [Антон Рябков](https://github.com/Contramund)
