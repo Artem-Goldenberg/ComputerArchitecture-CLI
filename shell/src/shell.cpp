@@ -16,6 +16,11 @@ Shell::Shell() :
 
 Shell::~Shell() {
     delete m_IO;
+    delete m_env;
+    delete m_CommandExecutor;
+    delete m_Parser;
+    delete m_Lexer;
+    delete m_Preprocessor;
 }
 
 void Shell::runPipeline() {

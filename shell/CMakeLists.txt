@@ -9,8 +9,9 @@ add_library(shell
     "${CMAKE_CURRENT_SOURCE_DIR}/src/preprocessor.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/io.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/shell.cpp")
+
 target_include_directories(shell
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/shell"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include/private"
-        "${CMAKE_CURRENT_SOURCE_DIR}/include/shell")
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/shell/shell")
