@@ -1,7 +1,7 @@
 #include "result.h"
 
 Result::Result(ResultState res, std::string data) :
-    m_state(res), m_data("") {}
+    m_state(res), m_data(data) {}
 
 Result::~Result() {}
 

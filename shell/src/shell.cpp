@@ -27,12 +27,16 @@ void Shell::runPipeline() {
     // MAIN LOOP
     while(true) {
         std::string req = m_IO->getRequest();
-
+        
+        Result processed = m_Preprocessor->substitute(req, *m_env);
+        
         if(req == "exit") break; // TODO: normal pipeline
-
-        m_IO->writeResponce(req);
+        
+        if (processed.isOk()) m_IO->writeResponce(processed.unwrap());
+        else m_IO->writeResponce("The error occured while processing: " + processed.unwrap());
     }
 }
+
 
 void Shell::setIO(IO *newIO) {
     m_IO = newIO;

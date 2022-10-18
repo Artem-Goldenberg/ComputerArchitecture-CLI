@@ -9,4 +9,9 @@ class Preprocessor {
         ~Preprocessor();
 
         Result substitute(const std::string &in, const Environment &env);
+    private:
+        const char varIndicator = '$';
+        /// array of variable name terminating characters
+        /// can be extended later
+        const std::string varTerminators = " $";
 };

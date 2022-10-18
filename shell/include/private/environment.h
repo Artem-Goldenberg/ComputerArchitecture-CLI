@@ -8,8 +8,8 @@ class Environment {
         Environment();
         ~Environment();
 
-        bool findVar(const std::string str);
-        std::string getVar(const std::string str);
+        bool findVar(const std::string str) const;
+        std::string getVar(const std::string str) const;
 
     private:
         std::unordered_map<std::string, std::string> m_variables;

@@ -36,3 +36,6 @@
 .AppleDouble
 .LSOverride
 .Spotlight-V100
+
+# Visual Studio Code
+.vscode
