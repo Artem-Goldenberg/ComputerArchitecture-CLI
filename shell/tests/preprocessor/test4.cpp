@@ -6,5 +6,7 @@ int main() {
     env.addVar("test_wd", "wd");
     Preprocessor p;
     Result res = p.substitute("$test_p$test_wd", env);
-    return res.isOk() && res.unwrap()  == "pwd";
+    if (res.isOk() && res.unwrap()  == "pwd")
+        return 0;
+    return 1;
 }

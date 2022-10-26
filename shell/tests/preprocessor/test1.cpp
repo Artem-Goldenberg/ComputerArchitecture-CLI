@@ -5,5 +5,7 @@ int main() {
     env.addVar("varN", "varV");
     Preprocessor p;
     Result res = p.substitute("$varN ", env);
-    return res.isOk() && res.unwrap()  == "varV ";
+    if (res.isOk() && res.unwrap()  == "varV ")
+        return 0;
+    return 1;
 }
