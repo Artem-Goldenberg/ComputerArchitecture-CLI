@@ -35,6 +35,10 @@ Result Preprocessor::substitute(const std::string &in, const Environment &env) {
         }
     }
     
+    if (isSingleQuoted || isDoubleQuoted) {
+        return Result(Error, "Quotes are not balanced");
+    }
+    
     return Result(Ok, result);
 }
 
