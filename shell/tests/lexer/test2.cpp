@@ -2,8 +2,10 @@
 
 int main() {
     Lexer lex;
-    std::string str = "";
+    std::string str = "   cd      some_dir   ";
     std::vector<Token> true_ans;
+    true_ans.push_back(Token(TokenType::mString, "cd"));
+    true_ans.push_back(Token(TokenType::mString, "some_dir"));
 
     std::vector<Token> lex_ans = lex.tokenize(str);
     if( true_ans.size() == lex_ans.size() ) {

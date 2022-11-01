@@ -2,8 +2,13 @@
 
 int main() {
     Lexer lex;
-    std::string str = "";
+    std::string str = "cat helloWorld.txt|grep \"Hello 'some' world!\"";
     std::vector<Token> true_ans;
+    true_ans.push_back(Token(TokenType::mString, "cat"));
+    true_ans.push_back(Token(TokenType::mString, "helloWorld.txt"));
+    true_ans.push_back(Token(TokenType::mPipe, ""));
+    true_ans.push_back(Token(TokenType::mString, "grep"));
+    true_ans.push_back(Token(TokenType::mDoubleQuotes, "Hello 'some' world!"));
 
     std::vector<Token> lex_ans = lex.tokenize(str);
     if( true_ans.size() == lex_ans.size() ) {
