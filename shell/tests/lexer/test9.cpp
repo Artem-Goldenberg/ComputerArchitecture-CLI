@@ -2,8 +2,14 @@
 
 int main() {
     Lexer lex;
-    std::string str = "";
+    std::string str = "'Venya'\"D'rkin\"|the_best'one''";
     std::vector<Token> true_ans;
+    true_ans.push_back(Token(TokenType::mSingleQuotes, "Venya"));
+    true_ans.push_back(Token(TokenType::mDoubleQuotes, "D'rkin"));
+    true_ans.push_back(Token(TokenType::mPipe, ""));
+    true_ans.push_back(Token(TokenType::mString, "the_best"));
+    true_ans.push_back(Token(TokenType::mSingleQuotes, "one"));
+    true_ans.push_back(Token(TokenType::mSingleQuotes, ""));
 
     std::vector<Token> lex_ans = lex.tokenize(str);
     if( true_ans.size() == lex_ans.size() ) {
@@ -14,7 +20,6 @@ int main() {
     } else {
         return 1;
     }
-
 
     return 0;
 }
