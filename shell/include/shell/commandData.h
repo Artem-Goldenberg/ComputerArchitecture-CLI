@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <memory>
 
 #pragma once
 
@@ -13,7 +14,7 @@ class Pipe {
 
     private:
         // but data can be whatever you want
-        std::string m_data;
+        std::string m_data = "";
 };
 
 
@@ -21,13 +22,14 @@ class CommandData {
     public:
         CommandData();
         CommandData(std::string name);
-        CommandData(Pipe* p);
+        CommandData(std::shared_ptr<Pipe> p);
+        CommandData(const CommandData &other);
         ~CommandData();
 
         void setName(std::string name);
         void addArgument(std::string arg);
-        void setInputPipe(Pipe* p);
-        void setOutputPipe(Pipe* p);
+        void setInputPipe(std::shared_ptr<Pipe> p);
+        void setOutputPipe(std::shared_ptr<Pipe> p);
 
         std::string getName();
         std::vector<std::string> getArgs();
@@ -35,6 +37,6 @@ class CommandData {
     private:
         std::string m_name;
         std::vector<std::string> m_args;
-        Pipe* m_input = nullptr;
-        Pipe* m_output = nullptr;
+        std::shared_ptr<Pipe> m_input = nullptr;
+        std::shared_ptr<Pipe> m_output = nullptr;
 };

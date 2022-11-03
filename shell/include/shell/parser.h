@@ -1,4 +1,5 @@
 #include <vector>
+#include <variant>
 
 #include "token.h"
 #include "commandData.h"
@@ -8,5 +9,5 @@ class Parser {
         Parser();
         ~Parser();
 
-        std::vector<CommandData> parse(std::vector<Token> t);
+        std::variant<std::vector<CommandData>, std::string> parse(std::vector<Token> t);
 };

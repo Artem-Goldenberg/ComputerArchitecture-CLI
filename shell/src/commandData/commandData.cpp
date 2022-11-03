@@ -1,10 +1,11 @@
 #include "commandData.h"
+#include <iostream>
 
   ////////////////////////////////////////////////////////////////////
  /////////////////////////////// PIPE ///////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
-Pipe::Pipe() {}
+Pipe::Pipe() : m_data() {}
 
 Pipe::~Pipe() {}
 
@@ -24,12 +25,15 @@ CommandData::CommandData() {}
 
 CommandData::CommandData(std::string name) : m_name(name) {}
 
-CommandData::CommandData(Pipe* p) : m_input(p) {}
+CommandData::CommandData(std::shared_ptr<Pipe> p) : m_input(p) {}
 
-CommandData::~CommandData() {
-    delete m_input;
-    delete m_output;
-}
+CommandData::CommandData(const CommandData &other) :
+    m_input(other.m_input), // other.m_input == nullptr? nullptr : new Pipe(*other.m_input)),
+    m_output(other.m_output), //  == nullptr? nullptr : new Pipe(*other.m_output)),
+    m_name(other.m_name),
+    m_args(other.m_args) {}
+
+CommandData::~CommandData() { std::cout << "Deleting: " << m_input << std::endl; }
 
 void CommandData::setName(std::string name) {
     m_name = name;
@@ -39,11 +43,11 @@ void CommandData::addArgument(std::string arg) {
     m_args.push_back(arg);
 }
 
-void CommandData::setInputPipe(Pipe* p) {
+void CommandData::setInputPipe(std::shared_ptr<Pipe> p) {
     m_input = p;
 }
 
-void CommandData::setOutputPipe(Pipe* p) {
+void CommandData::setOutputPipe(std::shared_ptr<Pipe> p) {
     m_output = p;
 }
 
