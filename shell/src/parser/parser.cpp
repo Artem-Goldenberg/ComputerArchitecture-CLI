@@ -6,7 +6,7 @@ Parser::Parser() {}
 
 Parser::~Parser() {}
 
-std::variant<std::vector<CommandData>, std::string> Parser::parse(std::vector<Token> t) {
+std::variant<std::vector<CommandData>, std::string> Parser::parse(std::vector<Token> &t) {
     std::vector<CommandData> ans;
 
     CommandData current_command = CommandData();
@@ -41,6 +41,7 @@ std::variant<std::vector<CommandData>, std::string> Parser::parse(std::vector<To
                 case mPipe:
                 {
                     if(current_command.getName() == "") {
+                        if( token.getData() == "" ) return "command name cannot be empty";
                         current_command.setName(token.getData());
                     } else {
                         current_command.addArgument(token.getData());
@@ -58,6 +59,7 @@ std::variant<std::vector<CommandData>, std::string> Parser::parse(std::vector<To
 
                 default:
                     if(current_command.getName() == "") {
+                        if( token.getData() == "" ) return "command name cannot be empty";
                         current_command.setName(token.getData());
                     } else {
                         current_command.addArgument(token.getData());
@@ -68,6 +70,7 @@ std::variant<std::vector<CommandData>, std::string> Parser::parse(std::vector<To
             if(token.getTokenType() == TokenType::mPipe) return "nowhere to transfer";
 
             if(current_command.getName() == "") {
+                if( token.getData() == "" ) return "command name cannot be empty";
                 current_command.setName(token.getData());
             } else {
                 current_command.addArgument(token.getData());

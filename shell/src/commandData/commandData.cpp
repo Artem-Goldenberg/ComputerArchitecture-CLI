@@ -33,7 +33,7 @@ CommandData::CommandData(const CommandData &other) :
     m_name(other.m_name),
     m_args(other.m_args) {}
 
-CommandData::~CommandData() { std::cout << "Deleting: " << m_input << std::endl; }
+CommandData::~CommandData() {}
 
 void CommandData::setName(std::string name) {
     m_name = name;

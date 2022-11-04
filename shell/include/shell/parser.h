@@ -9,5 +9,5 @@ class Parser {
         Parser();
         ~Parser();
 
-        std::variant<std::vector<CommandData>, std::string> parse(std::vector<Token> t);
+        std::variant<std::vector<CommandData>, std::string> parse(std::vector<Token> &t);
 };

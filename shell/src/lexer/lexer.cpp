@@ -3,7 +3,7 @@
 Lexer::Lexer() {}
 Lexer::~Lexer() {}
 
-std::vector<Token> Lexer::tokenize(std::string in) {
+std::vector<Token> Lexer::tokenize(std::string &in) {
     int cur_token_begin = 0;
     std::vector<Token> ans;
 

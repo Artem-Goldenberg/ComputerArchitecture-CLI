@@ -8,5 +8,5 @@ class Lexer {
         Lexer();
         ~Lexer();
 
-        std::vector<Token> tokenize(std::string in);
+        std::vector<Token> tokenize(std::string &in);
 };
