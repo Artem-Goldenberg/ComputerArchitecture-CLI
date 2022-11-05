@@ -59,7 +59,8 @@ class WordCount : public Command {
         Result execute(std::vector<std::string> args, std::string input) override;
     
     private:
-        std::tuple<Result, int, int, int> countWords(std::string filename);
+        std::tuple<Result, int, int, int> countWords(std::string string, bool isFile);
+        std::tuple<int, int, int> countIn(std::istream&);
 };
 
 class Pwd : public Command {

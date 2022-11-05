@@ -58,3 +58,20 @@ std::string CommandData::getName() {
 std::vector<std::string> CommandData::getArgs() {
     return m_args;
 }
+
+std::string CommandData::getInput() {
+    if (m_input) return m_input->read();
+    return "";
+}
+
+std::string CommandData::getOutput() {
+    return m_output->read();
+}
+
+void CommandData::setOutput(std::string data) {
+    if (!m_output) {
+        auto raw = new Pipe();
+        m_output = std::shared_ptr<Pipe>(raw);
+    }
+    m_output->write(data);
+}

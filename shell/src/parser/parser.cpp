@@ -35,7 +35,8 @@ std::variant<std::vector<CommandData>, std::string> Parser::parse(std::vector<To
                         current_command = CommandData();
                     }
                     token_num+=2;
-                    if(token_num+1 == t.size()) return "incomplete equality";
+                    // на a=b не работает, на 23 строчке уже проверялось это условие по идее
+//                    if(token_num+1 == t.size()) return "incomplete equality";
                     break;
 
                 case mPipe:

@@ -9,5 +9,6 @@ class CommandExecutor {
         Result process(std::vector<CommandData> e);
 
     private:
+        ExternalCommand* external;
         std::unordered_map<std::string, Command*> commands;
 };

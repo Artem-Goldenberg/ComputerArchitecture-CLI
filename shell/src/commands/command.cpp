@@ -4,15 +4,40 @@
 #include <sstream>
 #include <filesystem>
 
+#ifdef WINDOWS
+#define popen _popen  // a hack?
+#endif
+#ifdef _WIN32
+#define popen _popen
+#endif
+#ifdef _WIN64
+#define popen _popen
+#endif
+
 #define NOT_ENOUGH_ARGS Result(Error, "Not enough arguments")
 
-  ////////////////////////////////////////////////////////////////////
+static std::string joinAll(std::vector<std::string> args, std::string input) {
+    if (args.empty()) return input;
+    std::stringstream s("", std::ios_base::ate | std::ios_base::in | std::ios_base::out);
+    std::copy(args.begin(), args.end() - 1, std::ostream_iterator<std::string>(s, " "));
+    s << args.back();
+    if (!input.empty()) s << " " << input;
+    return s.str();
+}
+
+static Result isFileOk(std::string filename) {
+    const std::filesystem::path path(filename); // Constructing the path from a string is possible.
+    std::error_code ec; // For using the non-THROWING overloads of functions below.
+    if (std::filesystem::is_directory(path, ec)) return Result(Error, filename + " is a directory");
+    if (ec) return Result(Error, ec.message());
+    return Result(Ok, "");
+}
+
+////////////////////////////////////////////////////////////////////
  //////////////////////// COMMAND ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 Command::Command() {}
-
-Command::~Command() {}
 
   ////////////////////////////////////////////////////////////////////
  //////////////////////// ASSIGMENT COMMAND /////////////////////////
@@ -45,11 +70,22 @@ ExternalCommand::ExternalCommand() {}
 ExternalCommand::~ExternalCommand() {}
 
 Result ExternalCommand::execute(std::vector<std::string> args, std::string input) {
-    std::string ans;
+    std::string commandString = joinAll(args, input);
+    std::string response;
 
-    // TODO: call utility from path or whatewer
+    FILE *pipe;
+    pipe = popen(commandString.c_str(), "r");
+    
+    if (!pipe) return Result(Error, "Unable to execute an external command");
+    
+    int bufSize = 100;
+    char buffer[bufSize];
+    while (fgets(buffer, bufSize, pipe) != NULL)
+        response += buffer;
+    
+    pclose(pipe);
 
-    return Result(Error, "TODO");
+    return Result(Ok, response);
 }
 
   ////////////////////////////////////////////////////////////////////
@@ -80,18 +116,13 @@ Result Cat::execute(std::vector<std::string> args, std::string input) {
 }
 
 Result Cat::read(std::string filename) {
-    std::ifstream ifs(filename, std::ios::in | std::ios::binary | std::ios::ate);
-    
-    auto fileSize = ifs.tellg();
-    if (fileSize < 0)
-        return Result(Error, "Unable to read the file: " + filename);
-    
-    ifs.seekg(0, std::ios::beg);
-    
-    std::vector<char> bytes(fileSize);
-    ifs.read(&bytes[0], fileSize);
-    
-    return Result(Ok, std::string(&bytes[0], fileSize));
+    Result res = isFileOk(filename);
+    if (!res.isOk()) return res;
+    std::ifstream ifs(filename);
+    if (!ifs.is_open()) return Result(Error, "Unable to open the file: " + filename);
+    std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    ifs.close();
+    return Result(Ok, content);
 }
 
 
@@ -106,12 +137,9 @@ Echo::~Echo() {}
 Result Echo::execute(std::vector<std::string> args, std::string input) {
     if (args.empty() && input.empty()) return NOT_ENOUGH_ARGS;
     
-    std::stringstream s("", std::ios_base::ate | std::ios_base::in | std::ios_base::out);
-    std::copy(args.begin(), args.end() - 1, std::ostream_iterator<std::string>(s, " "));
-    s << args.back();
-    if (!input.empty()) s << " " << input;
+    std::string ans = joinAll(args, input);
     
-    return Result(Ok, s.str());
+    return Result(Ok, ans);
 }
 
 
@@ -126,15 +154,18 @@ WordCount::~WordCount() {}
 Result WordCount::execute(std::vector<std::string> args, std::string input) {
     if (args.empty() && input.empty()) return NOT_ENOUGH_ARGS;
     
+    // Если есть аргументы, то забиваем на input, если нет, то считаем символы в input
+    if (args.empty()) {
+        auto [res, cc, wc, lc] = countWords(input, false);
+        return res;
+    }
+    
     std::string ans;
     int totalCharCount = 0, totalWordCount = 0, totalLineCount = 0;
     bool printTotal = false; // if more than 2 files, print total in the end
     
-    std::vector<std::string> copied(args);
-    if (!input.empty()) copied.insert(copied.end(), input);
-    
-    for (std::string arg : copied) {
-        auto [res, cc, wc, lc] = countWords(arg);
+    for (std::string arg : args) {
+        auto [res, cc, wc, lc] = countWords(arg, true);
         if (!res.isOk()) return res;
         totalCharCount += cc;
         totalWordCount += wc;
@@ -150,32 +181,52 @@ Result WordCount::execute(std::vector<std::string> args, std::string input) {
     return Result(Ok, ans);
 }
 
-std::tuple<Result, int, int, int> WordCount::countWords(std::string filename) {
-    std::ifstream file(filename);
+std::tuple<Result, int, int, int> WordCount::countWords(std::string string, bool isFile) {
+    int charCount, wordCount, lineCount;
+    if (isFile) {
+        Result res = isFileOk(string);
+        if (!res.isOk()) return {res, 0, 0, 0};
+        
+        std::ifstream file(string);
+        
+        if (!file.is_open()) return {Result(Error, "File not found: " + string), 0, 0, 0};
+        
+        auto [cc, wc, lc] = countIn(file);
+        file.close();
+        
+        charCount = cc;
+        wordCount = wc;
+        lineCount = lc;
+    } else {
+        std::istringstream s(string);
+        auto [cc, wc, lc] = countIn(s);
+        charCount = cc;
+        wordCount = wc;
+        lineCount = lc;
+    }
     
+    return {
+        Result(Ok, std::to_string(lineCount) + ' ' + std::to_string(wordCount) + ' ' +
+                   std::to_string(charCount) + "  " + string),
+        charCount, wordCount, lineCount
+    };
+}
+
+std::tuple<int, int, int> WordCount::countIn(std::istream &in) {
     char ch;
     enum states { WHITESPACE, WORD };
     int state = WHITESPACE;
     int charCount = 0, wordCount = 0, lineCount = 0;
-    
-    if (file.is_open()) {
-        while (file.read(&ch, 1)) {
-            charCount++;
-            if (ch == '\n') lineCount++;
-            if (isspace(ch)) state = WHITESPACE;
-            else if (state == WHITESPACE) {
-                wordCount++;
-                state = WORD;
-            }
+    while (in.read(&ch, 1)) {
+        charCount++;
+        if (ch == '\n') lineCount++;
+        if (isspace(ch)) state = WHITESPACE;
+        else if (state == WHITESPACE) {
+            wordCount++;
+            state = WORD;
         }
-        file.close();
-    } else return {Result(Error, "File not found: " + filename), 0, 0, 0};
-    
-    return {
-        Result(Ok, std::to_string(lineCount) + ' ' + std::to_string(wordCount) + ' ' +
-                   std::to_string(charCount) + "  " + filename),
-        charCount, wordCount, lineCount
-    };
+    }
+    return {charCount, wordCount, lineCount};
 }
 
   ////////////////////////////////////////////////////////////////////

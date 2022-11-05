@@ -33,6 +33,10 @@ class CommandData {
 
         std::string getName();
         std::vector<std::string> getArgs();
+        std::string getInput();
+        std::string getOutput();
+    
+        void setOutput(std::string);
 
     private:
         std::string m_name;
