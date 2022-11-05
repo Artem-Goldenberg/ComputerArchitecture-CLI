@@ -1,8 +1,10 @@
 #include "command.h"
 #include <algorithm>
 #include <fstream>
+#include <sstream>
+#include <filesystem>
 
-#define NOT_ENOUGH_ARGS "Not enough arguments"
+#define NOT_ENOUGH_ARGS Result(Error, "Not enough arguments")
 
   ////////////////////////////////////////////////////////////////////
  //////////////////////// COMMAND ///////////////////////////////////
@@ -21,7 +23,7 @@ AssigmentCommand::AssigmentCommand(Environment *env) : m_env(env) {}
 AssigmentCommand::~AssigmentCommand() {}
 
 Result AssigmentCommand::execute(std::vector<std::string> args, std::string input) {
-    if (args.size() < 2) return Result(Error, NOT_ENOUGH_ARGS);
+    if (args.size() < 2) return NOT_ENOUGH_ARGS;
     if (validate(args[0]) && validate(args[1]))
         m_env->addVar(args[0], args[1]);
     return Result(Ok, "");
@@ -59,11 +61,37 @@ Cat::Cat() {}
 Cat::~Cat() {}
 
 Result Cat::execute(std::vector<std::string> args, std::string input) {
+    if (args.empty() && input.empty()) return NOT_ENOUGH_ARGS;
+    
     std::string ans;
     
-    // TODO: call utility from path or whatewer
+    std::vector<std::string> copied(args);
+    if (!input.empty()) copied.insert(copied.end(), input);
     
-    return Result(Error, "TODO");
+    for (std::string arg : copied) {
+        Result res = read(arg);
+        if (!res.isOk()) return res;
+        ans += res.unwrap();
+    }
+    
+    ans.pop_back();
+    
+    return Result(Ok, ans);
+}
+
+Result Cat::read(std::string filename) {
+    std::ifstream ifs(filename, std::ios::in | std::ios::binary | std::ios::ate);
+    
+    auto fileSize = ifs.tellg();
+    if (fileSize < 0)
+        return Result(Error, "Unable to read the file: " + filename);
+    
+    ifs.seekg(0, std::ios::beg);
+    
+    std::vector<char> bytes(fileSize);
+    ifs.read(&bytes[0], fileSize);
+    
+    return Result(Ok, std::string(&bytes[0], fileSize));
 }
 
 
@@ -76,11 +104,14 @@ Echo::Echo() {}
 Echo::~Echo() {}
 
 Result Echo::execute(std::vector<std::string> args, std::string input) {
-    std::string ans;
+    if (args.empty() && input.empty()) return NOT_ENOUGH_ARGS;
     
-    // TODO: call utility from path or whatewer
+    std::stringstream s("", std::ios_base::ate | std::ios_base::in | std::ios_base::out);
+    std::copy(args.begin(), args.end() - 1, std::ostream_iterator<std::string>(s, " "));
+    s << args.back();
+    if (!input.empty()) s << " " << input;
     
-    return Result(Error, "TODO");
+    return Result(Ok, s.str());
 }
 
 
@@ -93,27 +124,21 @@ WordCount::WordCount() {}
 WordCount::~WordCount() {}
 
 Result WordCount::execute(std::vector<std::string> args, std::string input) {
-    if (args.empty() && input.empty()) return Result(Error, NOT_ENOUGH_ARGS);
+    if (args.empty() && input.empty()) return NOT_ENOUGH_ARGS;
     
     std::string ans;
     int totalCharCount = 0, totalWordCount = 0, totalLineCount = 0;
     bool printTotal = false; // if more than 2 files, print total in the end
     
-    for (std::string arg : args) {
+    std::vector<std::string> copied(args);
+    if (!input.empty()) copied.insert(copied.end(), input);
+    
+    for (std::string arg : copied) {
         auto [res, cc, wc, lc] = countWords(arg);
+        if (!res.isOk()) return res;
         totalCharCount += cc;
         totalWordCount += wc;
         totalLineCount += lc;
-        if (!res.isOk()) return res;
-        if (!ans.empty()) printTotal = true;
-        ans += res.unwrap() + '\n';
-    }
-    if (!input.empty()) {
-        auto [res, cc, wc, lc] = countWords(input);
-        totalCharCount += cc;
-        totalWordCount += wc;
-        totalLineCount += lc;
-        if (!res.isOk()) return res;
         if (!ans.empty()) printTotal = true;
         ans += res.unwrap() + '\n';
     }
@@ -144,7 +169,7 @@ std::tuple<Result, int, int, int> WordCount::countWords(std::string filename) {
             }
         }
         file.close();
-    } else return {Result(Error, "File named not found: " + filename), 0, 0, 0};
+    } else return {Result(Error, "File not found: " + filename), 0, 0, 0};
     
     return {
         Result(Ok, std::to_string(lineCount) + ' ' + std::to_string(wordCount) + ' ' +
@@ -153,7 +178,7 @@ std::tuple<Result, int, int, int> WordCount::countWords(std::string filename) {
     };
 }
 
-////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////
  ///////////////////////// PWD  /////////////////////////
 ////////////////////////////////////////////////////////////////////
 
@@ -162,15 +187,13 @@ Pwd::Pwd() {}
 Pwd::~Pwd() {}
 
 Result Pwd::execute(std::vector<std::string> args, std::string input) {
-    std::string ans;
-    
-    // TODO: call utility from path or whatewer
-    
-    return Result(Error, "TODO");
+    if (!args.empty() || !input.empty()) return Result(Error, "Too many arguments");
+    auto path = std::filesystem::current_path();
+    return Result(Ok, path.string());
 }
 
-////////////////////////////////////////////////////////////////////
-///////////////////////// EXIT  /////////////////////////
+  ////////////////////////////////////////////////////////////////////
+ ///////////////////////// EXIT /////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 Exit::Exit() {}
@@ -178,9 +201,5 @@ Exit::Exit() {}
 Exit::~Exit() {}
 
 Result Exit::execute(std::vector<std::string> args, std::string input) {
-    std::string ans;
-    
-    // TODO: call utility from path or whatewer
-    
-    return Result(Error, "TODO");
+    return Result(Error, "_EXIT");
 }

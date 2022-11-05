@@ -6,7 +6,7 @@
 class Command {
     public:
         Command();
-        ~Command();
+        virtual ~Command() = default;
 
         virtual Result execute(std::vector<std::string> args, std::string input) = 0;
 };
@@ -38,6 +38,9 @@ class Cat : public Command {
         ~Cat();
 
         Result execute(std::vector<std::string> args, std::string input) override;
+    
+    private:
+        Result read(std::string filename);
 };
 
 class Echo : public Command {
