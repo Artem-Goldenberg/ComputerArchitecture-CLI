@@ -207,7 +207,7 @@ std::tuple<Result, int, int, int> WordCount::countWords(std::string string, bool
     
     return {
         Result(Ok, std::to_string(lineCount) + ' ' + std::to_string(wordCount) + ' ' +
-                   std::to_string(charCount) + "  " + string),
+                   std::to_string(charCount) + (isFile ? "  " + string : "")),
         charCount, wordCount, lineCount
     };
 }
@@ -218,6 +218,7 @@ std::tuple<int, int, int> WordCount::countIn(std::istream &in) {
     int state = WHITESPACE;
     int charCount = 0, wordCount = 0, lineCount = 0;
     while (in.read(&ch, 1)) {
+        if (lineCount == 0) lineCount++; // если есть хоть 1 смвол, засчитываем 1 строку
         charCount++;
         if (ch == '\n') lineCount++;
         if (isspace(ch)) state = WHITESPACE;
@@ -226,6 +227,7 @@ std::tuple<int, int, int> WordCount::countIn(std::istream &in) {
             state = WORD;
         }
     }
+    if (ch == '\n') lineCount--; // не считаем строку если она последняя в файле и пустая
     return {charCount, wordCount, lineCount};
 }
 
