@@ -2,7 +2,7 @@
 #include <iostream>
 
 IO::IO() {
-    std::cout << "\nHello World\nShell> ";
+    std::cout << "\nHello World\n";
     std::cout.flush();
 }
 
@@ -12,11 +12,16 @@ IO::~IO() {
 
 std::string IO::getRequest() {
     std::string ans;
+    std::cout << "Shell> ";
     std::getline(std::cin >> std::ws, ans);
+    std::cout << "\n";
     return ans;
 }
 
 void IO::writeResponce(std::string ans) {
-    std::cout << "\n" << ans << "\nShell> ";
+    if (!ans.empty()) {
+        char sep = *(ans.end() - 1) == '\n' ? '\0' : '\n';
+        std::cout << ans << sep << "\n";
+    }
     std::cout.flush();
 }

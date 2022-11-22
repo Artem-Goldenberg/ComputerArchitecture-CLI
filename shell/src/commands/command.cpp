@@ -71,11 +71,12 @@ ExternalCommand::~ExternalCommand() {}
 
 Result ExternalCommand::execute(std::vector<std::string> args, std::string input) {
     std::string commandString = "";
-    
     // add input to the external command via echo "input" | cmd
     if (!input.empty()) commandString += "echo \"" + input + "\" | ";
     
     commandString += joinAll(args);
+    commandString += " 2>&1"; // stderr -> stdout
+    
     std::string response;
 
     FILE *pipe;
@@ -181,7 +182,7 @@ Result WordCount::execute(std::vector<std::string> args, std::string input) {
     if (printTotal) {
         ans += std::to_string(totalLineCount) + ' ' + std::to_string(totalWordCount) +
         ' ' + std::to_string(totalCharCount) + "  total";
-    } else ans.pop_back(); // string last '\n'
+    }
     
     return Result(Ok, ans);
 }

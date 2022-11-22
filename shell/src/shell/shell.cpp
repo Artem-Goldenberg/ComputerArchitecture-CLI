@@ -29,6 +29,8 @@ void Shell::runPipeline() {
     // MAIN LOOP
     while(true) {
         std::string req = m_IO->getRequest();
+        
+        if (req.empty()) continue;
 
         Result ans_prep_res = m_Preprocessor->substitute(req, *m_env);
         if(!ans_prep_res.isOk()) {
