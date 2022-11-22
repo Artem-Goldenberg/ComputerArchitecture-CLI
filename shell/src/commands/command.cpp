@@ -16,7 +16,7 @@
 
 #define NOT_ENOUGH_ARGS Result(Error, "Not enough arguments")
 
-static std::string joinAll(std::vector<std::string> args, std::string input) {
+static std::string joinAll(std::vector<std::string> args, std::string input = "") {
     if (args.empty()) return input;
     std::stringstream s("", std::ios_base::ate | std::ios_base::in | std::ios_base::out);
     std::copy(args.begin(), args.end() - 1, std::ostream_iterator<std::string>(s, " "));
@@ -33,7 +33,7 @@ static Result isFileOk(std::string filename) {
     return Result(Ok, "");
 }
 
-////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////
  //////////////////////// COMMAND ///////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,12 @@ ExternalCommand::ExternalCommand() {}
 ExternalCommand::~ExternalCommand() {}
 
 Result ExternalCommand::execute(std::vector<std::string> args, std::string input) {
-    std::string commandString = joinAll(args, input);
+    std::string commandString = "";
+    
+    // add input to the external command via echo "input" | cmd
+    if (!input.empty()) commandString += "echo \"" + input + "\" | ";
+    
+    commandString += joinAll(args);
     std::string response;
 
     FILE *pipe;

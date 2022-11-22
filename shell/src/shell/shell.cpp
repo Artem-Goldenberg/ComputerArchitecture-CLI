@@ -40,7 +40,7 @@ void Shell::runPipeline() {
         std::vector<Token> ans_lexer = m_Lexer->tokenize(ans_prep);
         std::variant<std::vector<CommandData>, std::string> ans_parse_var = m_Parser->parse(ans_lexer);
         if( std::holds_alternative<std::string>(ans_parse_var) ) {
-            m_IO->writeResponce("ERROR: " + std::get<std::string>(ans_parse_var));
+            m_IO->writeResponce("Error: " + std::get<std::string>(ans_parse_var));
             continue;
         }
         
@@ -48,9 +48,9 @@ void Shell::runPipeline() {
         
         Result ans_cmd_res = m_CommandExecutor->process(ans_parse);
         if (!ans_cmd_res.isOk()) {
-            if (ans_cmd_res.unwrap() == SHELL_EXIT_SYMBOL) break;
+            if (ans_cmd_res.unwrap() == SHELL_EXIT_SYMBOL) return;
             
-            // mayber write Error: some or something ...
+            m_IO->writeResponce("Error: " + ans_cmd_res.unwrap());
         }
         m_IO->writeResponce(ans_cmd_res.unwrap());
     }

@@ -1,12 +1,12 @@
-add_executable(WordCountCommandTest0 test0.cpp)
+add_executable(WordCountCommandTest0 wc0.cpp)
 target_link_libraries(WordCountCommandTest0 PRIVATE command)
 add_test( NAME WordCountCommand:test0 COMMAND $<TARGET_FILE:WordCountCommandTest0>)
 
-add_executable(WordCountCommandTest1 test1.cpp)
+add_executable(WordCountCommandTest1 wc1.cpp)
 target_link_libraries(WordCountCommandTest1 PRIVATE command)
 add_test( NAME WordCountCommand:test1 COMMAND $<TARGET_FILE:WordCountCommandTest1>)
 
-add_executable(WordCountCommandTest2 test2.cpp)
+add_executable(WordCountCommandTest2 wc2.cpp)
 target_link_libraries(WordCountCommandTest2 PRIVATE command)
 add_test( NAME WordCountCommand:test2 COMMAND $<TARGET_FILE:WordCountCommandTest2>)
 

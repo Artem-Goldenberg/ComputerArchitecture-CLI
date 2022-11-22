@@ -17,6 +17,6 @@ std::string IO::getRequest() {
 }
 
 void IO::writeResponce(std::string ans) {
-    std::cout << ans << "\nShell> ";
+    std::cout << "\n" << ans << "\nShell> ";
     std::cout.flush();
 }
