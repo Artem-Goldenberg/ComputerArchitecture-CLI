@@ -52,7 +52,7 @@ void Shell::runPipeline() {
         if (!ans_cmd_res.isOk()) {
             if (ans_cmd_res.unwrap() == SHELL_EXIT_SYMBOL) return;
             
-            m_IO->writeResponce("Error: " + ans_cmd_res.unwrap());
+//            m_IO->writeResponce("Error: " + ans_cmd_res.unwrap());
         }
         m_IO->writeResponce(ans_cmd_res.unwrap());
     }
