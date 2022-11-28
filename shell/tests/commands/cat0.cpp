@@ -10,14 +10,13 @@ int main() {
     "some code some some code code\n"
     "more words more words\n"
     "there will be a leading space in this line here -->\n"
-    "Not it won't be huh my ide just won't let me make it that easily\n"
-    "'' is this counts as words?\n"
+    "Not it wOn't be huh my ide JusT won't let me make it that easily\n"
+    "'' is this CouNts as words?\n"
     "\n"
-    "' ' \" `\n"
-    "";
+    "' ' \" `\n";
     puts(res.unwrap().c_str());
     puts("And now look what real cat did: ");
-    std::string catCall = "cat textInput.txt textInput2.txt";
+    std::string catCall = "cat testInput.txt testInput2.txt";
     system(catCall.c_str());
     puts("That was it ---------");
     
