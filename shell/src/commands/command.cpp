@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <iterator>
 
 #ifdef WINDOWS
 #define popen _popen  // a hack?
@@ -95,7 +96,7 @@ Result ExternalCommand::execute(std::vector<std::string> args, std::string input
 }
 
   ////////////////////////////////////////////////////////////////////
- ///////////////////////// CAT /////////////////////////
+ ///////////////////////// CAT //////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 Cat::Cat() {}
@@ -103,21 +104,24 @@ Cat::Cat() {}
 Cat::~Cat() {}
 
 Result Cat::execute(std::vector<std::string> args, std::string input) {
-    if (args.empty() && input.empty()) return NOT_ENOUGH_ARGS;
-    
-    std::string ans;
-    
-    std::vector<std::string> copied(args);
-    if (!input.empty()) copied.insert(copied.end(), input);
-    
-    for (std::string arg : copied) {
+    if (args.empty() ) {
+        if( input.empty()) {
+            return NOT_ENOUGH_ARGS;
+        } else {
+            return Result(Ok, input);
+        }
+    }
+
+    std::string ans = "";
+
+    for (auto arg : args) {
         Result res = read(arg);
         if (!res.isOk()) return res;
         ans += res.unwrap();
     }
     
-    ans.pop_back();
-    
+    if(!ans.empty()) ans.pop_back();
+
     return Result(Ok, ans);
 }
 
@@ -126,15 +130,16 @@ Result Cat::read(std::string filename) {
     if (!res.isOk()) return res;
     std::ifstream ifs(filename);
     if (!ifs.is_open()) return Result(Error, "Unable to open the file: " + filename);
-    std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    std::string content{std::istreambuf_iterator{ifs}, {}};
     ifs.close();
     return Result(Ok, content);
 }
 
 
-  ////////////////////////////////////////////////////////////////////
- ///////////////////////// ECHO ////////////////////////
+  ///////////////////////////////////////////////////////////////////////
+ ///////////////////////// ECHO ////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
+
 
 Echo::Echo() {}
 
@@ -150,7 +155,7 @@ Result Echo::execute(std::vector<std::string> args, std::string input) {
 
 
   ////////////////////////////////////////////////////////////////////
- ///////////////////////// WORD COUNT  /////////////////////////
+ ///////////////////////// WORD COUNT  //////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 WordCount::WordCount() {}
@@ -179,9 +184,12 @@ Result WordCount::execute(std::vector<std::string> args, std::string input) {
         if (!ans.empty()) printTotal = true;
         ans += res.unwrap() + '\n';
     }
+
     if (printTotal) {
         ans += std::to_string(totalLineCount) + ' ' + std::to_string(totalWordCount) +
         ' ' + std::to_string(totalCharCount) + "  total";
+    } else {
+        ans.resize(ans.size()-1); // delete extra '\n' char
     }
     
     return Result(Ok, ans);

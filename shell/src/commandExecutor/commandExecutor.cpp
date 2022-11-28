@@ -42,15 +42,15 @@ Result CommandExecutor::process(std::vector<CommandData> e) {
             args.insert(args.begin(), name);
             name = "External";
         }
-        
+
         Result res = cmd->execute(args, data.getInput());
-        
+
         if (!res.isOk()) {
             std::string errorMsg = name + ": " + res.unwrap();
             return Result(Error, errorMsg);
         }
         (*it).setOutput(res.unwrap());
     }
-    
+
     return Result(Ok, e.back().getOutput());
 }

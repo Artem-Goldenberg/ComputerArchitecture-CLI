@@ -1,14 +1,11 @@
 #include "command.h"
 #include <iostream>
 
-using namespace std;
-
 int main() {
     std::cout << "Echo test 0 start:\n";
     
     Echo echo;
-    vector<string> v;
-    v.push_back("some");
+    std::vector<std::string> v = {"some"};
     Result res = echo.execute(v, "");
     puts(res.unwrap().c_str());
     

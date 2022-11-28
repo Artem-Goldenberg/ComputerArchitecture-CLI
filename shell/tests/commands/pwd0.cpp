@@ -1,14 +1,12 @@
 #include "command.h"
 #include <iostream>
 
-using namespace std;
-
 int main() {
     std::cout << "Pwd test 0 start:\n";
     
     Pwd cmd;
     Result res = cmd.execute({}, "");
-    std::cout << "Got path: " << (res.unwrap().c_str()) << endl;
+    std::cout << "Got path: " << (res.unwrap().c_str()) << std::endl;
     
     std::cout << "Pwd test 0 end\n";
     if (!res.isOk()) return 1;
@@ -25,13 +23,13 @@ int main() {
     
     if (line_size == 0) return 1;
     
-    string path(buffer);
+    std::string path(buffer);
     path.pop_back();
     
     free(buffer);
     pclose(pipe);
     
-    std::cout << "Path we want: " << path << endl;
+    std::cout << "Path we want: " << path << std::endl;
     
     if (res.unwrap() != path) return 1;
     return 0;

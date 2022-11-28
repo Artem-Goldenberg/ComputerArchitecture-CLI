@@ -1,16 +1,12 @@
 #include "command.h"
 #include <iostream>
 
-using namespace std;
-
 int main() {
     std::cout << "Cat test 0 start:\n";
     Cat cat;
-    vector<string> v;
-    v.push_back("testInput.txt");
-    v.push_back("testInput2.txt");
+    std::vector<std::string> v = {"testInput.txt", "testInput2.txt"};
     Result res = cat.execute(v, "");
-    string validStr =
+    std::string validStr =
     "some code some some code code\n"
     "more words more words\n"
     "there will be a leading space in this line here -->\n"
@@ -21,7 +17,7 @@ int main() {
     "";
     puts(res.unwrap().c_str());
     puts("And now look what real cat did: ");
-    string catCall = "cat textInput.txt textInput2.txt";
+    std::string catCall = "cat textInput.txt textInput2.txt";
     system(catCall.c_str());
     puts("That was it ---------");
     

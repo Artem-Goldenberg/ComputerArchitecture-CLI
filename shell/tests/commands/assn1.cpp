@@ -3,6 +3,7 @@
 #include <iostream>
 
 int main() {
+    // check if irrelevant assignment fails
     std::cout << "Assignment test 1 start:\n";
     Environment env;
     AssigmentCommand eq(&env);

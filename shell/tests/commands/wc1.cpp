@@ -1,5 +1,5 @@
-#import "command.h"
-#import <iostream>
+#include "command.h"
+#include <iostream>
 
 int main() {
     std::cout << "WordCount test 1 start:\n";

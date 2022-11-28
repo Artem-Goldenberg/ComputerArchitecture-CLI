@@ -1,8 +1,6 @@
 #include "command.h"
 #include <iostream>
 
-using namespace std;
-
 int main() {
     std::cout << "Exit test 0 end:\n";
     

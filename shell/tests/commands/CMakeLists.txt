@@ -22,9 +22,21 @@ add_executable(AssignmentCommandTest1 assn1.cpp)
 target_link_libraries(AssignmentCommandTest1 PRIVATE command)
 add_test( NAME AssignmentCommand:test1 COMMAND $<TARGET_FILE:AssignmentCommandTest1>)
 
+add_executable(AssignmentCommandTest2 assn2.cpp)
+target_link_libraries(AssignmentCommandTest2 PRIVATE command)
+add_test( NAME AssignmentCommand:test2 COMMAND $<TARGET_FILE:AssignmentCommandTest2>)
+
 add_executable(CatCommandTest0 cat0.cpp)
 target_link_libraries(CatCommandTest0 PRIVATE command)
 add_test( NAME CatCommand:test0 COMMAND $<TARGET_FILE:CatCommandTest0>)
+
+add_executable(CatCommandTest1 cat1.cpp)
+target_link_libraries(CatCommandTest1 PRIVATE command)
+add_test( NAME CatCommand:test1 COMMAND $<TARGET_FILE:CatCommandTest1>)
+
+add_executable(CatCommandTest2 cat2.cpp)
+target_link_libraries(CatCommandTest2 PRIVATE command)
+add_test( NAME CatCommand:test2 COMMAND $<TARGET_FILE:CatCommandTest2>)
 
 add_executable(EchoCommandTest0 echo0.cpp)
 target_link_libraries(EchoCommandTest0 PRIVATE command)
@@ -39,6 +51,9 @@ target_link_libraries(ExitCommandTest0 PRIVATE command)
 add_test( NAME ExitCommand:test0 COMMAND $<TARGET_FILE:ExitCommandTest0>)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testInput.txt
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testInput1.txt
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testInput2.txt
