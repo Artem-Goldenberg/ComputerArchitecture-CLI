@@ -8,6 +8,7 @@ CommandExecutor::CommandExecutor(Environment* env) {
     auto echo = new Echo();
     auto wc = new WordCount();
     auto pwd = new Pwd();
+    auto grep = new Grep();
     auto ext = new Exit();
     
     commands.insert(std::make_pair("=", assCmd));
@@ -15,6 +16,7 @@ CommandExecutor::CommandExecutor(Environment* env) {
     commands.insert(std::make_pair("echo", echo));
     commands.insert(std::make_pair("wc", wc));
     commands.insert(std::make_pair("pwd", pwd));
+    commands.insert(std::make_pair("grep", grep));
     commands.insert(std::make_pair("exit", ext));
 }
 

@@ -1,9 +1,11 @@
 #include "command.h"
+#include "argh.h"
 #include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <filesystem>
 #include <iterator>
+#include <cstring>
 
 #ifdef WINDOWS
 #define popen _popen  // a hack?
@@ -30,7 +32,7 @@ static Result isFileOk(std::string filename) {
     const std::filesystem::path path(filename); // Constructing the path from a string is possible.
     std::error_code ec; // For using the non-THROWING overloads of functions below.
     if (std::filesystem::is_directory(path, ec)) return Result(Error, filename + " is a directory");
-    if (ec) return Result(Error, ec.message());
+    if (ec) return Result(Error, filename + ": " + ec.message());
     return Result(Ok, "");
 }
 
@@ -246,7 +248,7 @@ std::tuple<int, int, int> WordCount::countIn(std::istream &in) {
 }
 
   ////////////////////////////////////////////////////////////////////
- ///////////////////////// PWD  /////////////////////////
+ ///////////////////////// PWD  /////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 Pwd::Pwd() {}
@@ -260,7 +262,154 @@ Result Pwd::execute(std::vector<std::string> args, std::string input) {
 }
 
   ////////////////////////////////////////////////////////////////////
- ///////////////////////// EXIT /////////////////////////
+ ///////////////////////// GREP  ////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+
+Grep::Grep() {}
+
+Grep::~Grep() {}
+
+Result Grep::execute(std::vector<std::string> args, std::string input) {
+    if (args.empty()) return NOT_ENOUGH_ARGS;
+    
+    auto var = parse(args);
+   
+    if (std::holds_alternative<std::string>(var))
+        return Result(Error, std::get<std::string>(var));
+    
+    if (!std::holds_alternative<ParseResult>(var))
+        return Result(Error, "Unkown error");
+    
+    auto [posArgs, caseInsensetive, wordsOnly, num_lines] = std::get<ParseResult>(var);
+    if (posArgs.empty()) return NOT_ENOUGH_ARGS;
+    
+    std::string result;
+    bool prependFilename = posArgs.size() > 2;
+    
+    auto argit = posArgs.begin();
+    
+    auto options = caseInsensetive ? std::regex::icase : std::regex::ECMAScript;
+    std::string query_str = wordsOnly ? "\\b" + *argit + "\\b" : *argit;
+    std::regex query(query_str, options);
+    
+    if (posArgs.size() == 1) {
+        if (input.empty()) return NOT_ENOUGH_ARGS;
+        else return find(query, input, false, num_lines);
+    }
+    
+    for (++argit; argit != posArgs.end(); ++argit) {
+        Result ans = find(query, *argit, true, num_lines, prependFilename);
+        if (!ans.isOk()) return ans;
+        
+        result += ans.unwrap();
+        
+        if (prependFilename) {
+            if (argit + 1 == posArgs.end() && ans.unwrap().empty()) {
+                // if found nothing and on the last iteration then remove '--\n' from the previous iteration
+                // we may not have it only if all result is empty in which case just skip and return empty string
+                if (!result.empty())
+                    result.erase(result.end() - 3, result.end());
+            } else if (argit + 1 != posArgs.end() && !ans.unwrap().empty())
+                result += "--\n";
+        }
+    }
+    
+    return Result(Ok, result);
+}
+
+std::variant<Grep::ParseResult, std::string> Grep::parse(std::vector<std::string> args) {
+    std::vector<const char*> cargs;
+    cargs.reserve(args.size());
+    
+    for (const std::string &str : args)
+        if (!str.empty()) // по идеи аргументы не могут быть пустыми, но мало ли
+            cargs.push_back(&str.front());
+    
+    argh::parser parser;
+    parser.add_param("A");
+    parser.parse((int)cargs.size(), cargs.data(), argh::parser::SINGLE_DASH_IS_MULTIFLAG);
+    
+    bool caseInsensetive = false;
+    bool wordsOnly = false;
+    int num_lines = 0;
+    
+    for (auto& flag : parser.flags()) {
+        if (flag.empty()) continue;
+        switch (flag[0]) {
+            case 'i':
+                caseInsensetive = true;
+                break;
+            case 'w':
+                wordsOnly = true;
+                break;
+            default:
+                return "Unknown flag: " + flag;
+        }
+    }
+
+    for (auto& param : parser.params()) {
+        if (param.first == "A") {
+            if (std::istringstream(param.second) >> num_lines) {
+                if (num_lines < 0)
+                    return "Number of lines must be a non-negative number, got: " + param.second;
+            } else
+                return "Number of lines must be an integer, got: " + param.second;
+        } else
+            return "Unknown parameter: " + param.first;
+    }
+    
+    return (ParseResult){parser.pos_args(), caseInsensetive, wordsOnly, num_lines};
+}
+
+Result Grep::find(std::regex query,
+                  std::string string,
+                  bool isFile,
+                  int num_lines,
+                  bool prependFilename) {
+    std::string result;
+    if (isFile) {
+        Result res = isFileOk(string);
+        if (!res.isOk()) return res;
+        
+        std::ifstream file(string);
+        
+        if (!file.good()) return Result(Error, "File not found: " + string);
+        
+        result = findIn(query, file, num_lines, prependFilename ? string : "");
+        
+        file.close();
+    } else {
+        std::istringstream s(string);
+        result = findIn(query, s, num_lines, "");
+    }
+    return Result(Ok, result);
+}
+
+std::string Grep::findIn(std::regex query,
+                         std::istream &input,
+                         int num_lines,
+                         std::string optionalPrefix) {
+    int linesToPrint = 0;
+    std::string result;
+    std::string line;
+    
+    while (getline(input, line)) {
+        if (std::regex_search(line, query)) {
+            if (!optionalPrefix.empty()) result += optionalPrefix + ": ";
+            result += line + "\n";
+            linesToPrint = num_lines;
+        } else if (linesToPrint > 0) {
+            if (!optionalPrefix.empty()) result += optionalPrefix + "- ";
+            result += line + "\n";
+            linesToPrint--;
+        }
+    }
+    
+    return result;
+}
+
+  ////////////////////////////////////////////////////////////////////
+ ///////////////////////// EXIT /////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 Exit::Exit() {}

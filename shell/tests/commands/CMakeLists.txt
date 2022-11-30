@@ -10,6 +10,10 @@ add_executable(WordCountCommandTest2 wc2.cpp)
 target_link_libraries(WordCountCommandTest2 PRIVATE command)
 add_test( NAME WordCountCommand:test2 COMMAND $<TARGET_FILE:WordCountCommandTest2>)
 
+add_executable(GrepCommandTest grepAll.cpp)
+target_link_libraries(GrepCommandTest PRIVATE command)
+add_test( NAME GrepCommandTest:test COMMAND $<TARGET_FILE:GrepCommandTest>)
+
 add_executable(ExternalCommandTest0 ext0.cpp)
 target_link_libraries(ExternalCommandTest0 PRIVATE command)
 add_test( NAME ExternalCommand:test0 COMMAND $<TARGET_FILE:ExternalCommandTest0>)
@@ -57,4 +61,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testInput1.txt
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testInput2.txt
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/testInput3.txt
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

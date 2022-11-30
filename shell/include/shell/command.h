@@ -1,4 +1,6 @@
 #include <vector>
+#include <regex>
+#include <variant>
 
 #include "result.h"
 #include "environment.h"
@@ -69,6 +71,31 @@ class Pwd : public Command {
         ~Pwd();
     
         Result execute(std::vector<std::string> args, std::string input) override;
+};
+
+class Grep : public Command {
+    public:
+        Grep();
+        ~Grep();
+        
+        Result execute(std::vector<std::string> args, std::string input) override;
+    private:
+        typedef std::tuple<std::vector<std::string>, bool, bool, int> ParseResult;
+    
+        std::variant<ParseResult, std::string> parse(std::vector<std::string> args);
+    
+        Result find(std::regex query,
+                    std::string string,
+                    bool isFile,
+                    int num_lines = 0,
+                    bool prependFilename = false);
+    
+        std::string findIn(std::regex query,
+                           std::istream &input,
+                           int num_lines,
+                           std::string optionalPrefix);
+    
+        std::string escapeSpecialChars(std::string str);
 };
 
 class Exit : public Command {
