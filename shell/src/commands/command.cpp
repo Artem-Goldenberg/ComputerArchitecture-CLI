@@ -288,10 +288,8 @@ Result Grep::execute(std::vector<std::string> args, std::string input) {
     
     auto argit = posArgs.begin();
     
-//    std::string sanitized = escapeSpecialChars(*argit);
-    std::string sanitized = *argit;
     auto options = caseInsensetive ? std::regex::icase : std::regex::ECMAScript;
-    std::string query_str = wordsOnly ? "\\b" + sanitized + "\\b" : sanitized;
+    std::string query_str = wordsOnly ? "\\b" + *argit + "\\b" : *argit;
     std::regex query(query_str, options);
     
     if (posArgs.size() == 1) {
@@ -317,18 +315,6 @@ Result Grep::execute(std::vector<std::string> args, std::string input) {
     }
     
     return Result(Ok, result);
-}
-
-std::string Grep::escapeSpecialChars(std::string s) {
-    static const char specialChars[] = R"(.^$+()[]{}|?*)";
-    std::string out;
-    out.reserve(s.size());
-    for (auto ch : s) {
-        if (std::strchr(specialChars, ch))
-            out.push_back('\\');
-        out.push_back(ch);
-    }
-    return out;
 }
 
 std::variant<Grep::ParseResult, std::string> Grep::parse(std::vector<std::string> args) {
