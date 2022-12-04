@@ -3,11 +3,22 @@
 #include "result.h"
 #include "environment.h"
 
+/// Base class for all commands in `Shell`.
 class Command {
     public:
         Command();
         virtual ~Command() = default;
 
+        /**
+         Represents an act of running the command in `Shell`
+         
+         Subclasses should override this method to make themselves useful
+         
+         - Parameter args: arguments passed in the command line after the command name
+         - Parameter input: string representing stdin of the command
+         
+         - Returns: `Result` of invoking the command.
+         */
         virtual Result execute(std::vector<std::string> args, std::string input) = 0;
 };
 
@@ -78,4 +89,3 @@ class Exit : public Command {
     
         Result execute(std::vector<std::string> args, std::string input) override;
 };
-
