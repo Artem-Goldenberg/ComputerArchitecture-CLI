@@ -25,7 +25,7 @@ Shell::Shell() :
     m_CommandExecutor(new CommandExecutor(m_env))
 {
     endGracefuly = [&] (int signum) {
-        std::move(m_IO)->writeResponce(std::string("Captured SIGINT(") + std::to_string(signum) + ") signal. Gracefully shutting down...");
+        std::move(m_IO)->writeResponce(std::string("\nCaptured SIGINT(") + std::to_string(signum) + ") signal. Gracefully shutting down...");
     };
     std::signal(
         SIGINT,
@@ -47,7 +47,9 @@ void Shell::runPipeline() {
     while(true) {
         std::string req = m_IO->getRequest();
         
-        if (req.empty()) continue;
+        if (req.empty()) {
+            continue;
+        }
 
         Result ans_prep_res = m_Preprocessor->substitute(req, *m_env);
         if(!ans_prep_res.isOk()) {

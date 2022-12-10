@@ -26,6 +26,7 @@ int main() {
     }
 
     if( pid == 0 ) { // child
+
         dup2(in_shell_pipe[0], STDIN_FILENO); // redirect stdin
         dup2(out_shell_pipe[1], STDOUT_FILENO); // redirect stdout
 
@@ -37,31 +38,34 @@ int main() {
 
         close(in_shell_pipe[0]);
         close(out_shell_pipe[1]);
+
     } else { // parent
+
         close(in_shell_pipe[0]);
         close(out_shell_pipe[1]);
 
-        // query
-        std::vector<std::string> input = {"echo \"lol\"\n", "exit\n"};
-        std::string true_ans = "";
+        // Query
+        std::vector<std::string> input = {"exit"};
+        std::string true_ans = "\nWelcome to myshell\nShell> \nProcess exited\n";
 
 
-        // insert to query
+        // Insert to query
+        std::string query = "";
         for( int iter = 0 ; iter < input.size(); iter++ ) {
-            write(in_shell_pipe[1], input[iter].c_str(), input[iter].size()+1);
-            // write(in_shell_pipe[1], "\n", 2);
+            query += input[iter] + "\n";
         }
+        write(in_shell_pipe[1], query.c_str(), query.size()+1);
         close(in_shell_pipe[1]);
         std::cout << "Input sent" << std::endl;
 
 
-        // await
+        // Await
         int status;
         wait(&status);
         std::cout << "Wait status: " << status << std::endl;
 
 
-        // get response
+        // Get response
         std::string ans = "";
         char reading_buf[1];
         int bound = 100;
@@ -70,16 +74,16 @@ int main() {
             bound--;
         }
         close(out_shell_pipe[0]);
-        std::cout << "Response captured:\n\"" << ans << "\"" << std::endl;
+        // std::cout << "Response captured:\n\"" << ans << "\"" << std::endl;
 
 
-        //check responce
+        // Check responce
         if( ans != true_ans ) {
             std::cout << "Got output:\n\"" << ans << "\",\nbut expected:\n\"" << true_ans << "\"" << std::endl;
             return 3;
         }
-    }
 
+    }
 
     return 0;
 }
