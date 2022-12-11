@@ -19,8 +19,8 @@ std::string IO::getRequest() {
 
 void IO::writeResponce(std::string ans) {
     if (!ans.empty()) {
-        char sep = *(ans.end() - 1) == '\n' ? '\0' : '\n';
-        std::cout << "\n" << ans << sep << "\n";
+        std::string end = *(ans.end() - 1) == '\n' ? "\n" : "\n\n";
+        std::cout << "\n" << ans << end;
     }
     std::cout.flush();
 }

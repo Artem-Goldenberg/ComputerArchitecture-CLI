@@ -52,16 +52,39 @@ AssigmentCommand::~AssigmentCommand() {}
 
 Result AssigmentCommand::execute(std::vector<std::string> args, std::string input) {
     if (args.size() < 2) return NOT_ENOUGH_ARGS;
-    if (validate(args[0]) && validate(args[1]))
-        m_env->addVar(args[0], args[1]);
-    return Result(Ok, "");
-}
+    if (args[0].empty()) return Result(Error, "Empty var name");
+    if( isalpha((int)args[0][0]) == 0 ) return Result(Error, "Variable name must begin with a letter");
 
-bool AssigmentCommand::validate(std::string name) {
-    if (name.empty()) return false;
-    if (!isalpha(name[0])) return false;
-    auto it = std::find_if_not(name.begin() + 1, name.end(), ::isalnum);
-    return it == name.end();
+    auto invalid_name = std::find_if_not(
+        args[0].begin() + 1,
+        args[0].end(),
+        [](int ch) {
+            if( isalnum(ch) != 0 ) return true;
+            if( ch == '_' ) return true;
+            return false;
+    });
+    if( invalid_name != args[0].end() ) return Result(Error, std::string("Found \"") + (char)(*invalid_name) + "\": Variable name can include only letters, digits and '_' characters");
+
+    auto invalid_value = std::find_if_not(
+        args[1].begin() + 1,
+        args[1].end(),
+        [](int ch) {
+            if( isalnum(ch) != 0 ) return true;
+            if( ch == '_' ) return true;
+            if( ch == ' ' ) return true;
+            if( ch == '.' ) return true;
+            if( ch == ',' ) return true;
+            if( ch == '-' ) return true;
+            if( ch == '/' ) return true;
+            if( ch == '|' ) return true;
+            if( ch == '!' ) return true;
+            if( ch == '\\' ) return true;
+            return false;
+    });
+    if( invalid_value != args[1].end() ) return Result(Error, std::string("Found \"") + (char)(*invalid_value) + "\": Value can include only letters, digits and \"_.,-/| !\\\" characters");
+
+    m_env->addVar(args[0], args[1]);
+    return Result(Ok, "");
 }
 
   ////////////////////////////////////////////////////////////////////
