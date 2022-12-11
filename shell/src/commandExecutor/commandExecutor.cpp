@@ -41,6 +41,7 @@ Result CommandExecutor::process(std::vector<CommandData> e) {
         } else {
             cmd = external;
             args = data.getArgs();
+            // in the external case, we pass name as the first argument
             args.insert(args.begin(), name);
             name = "External";
         }
@@ -51,7 +52,7 @@ Result CommandExecutor::process(std::vector<CommandData> e) {
             std::string errorMsg = name + ": " + res.unwrap();
             return Result(Error, errorMsg);
         }
-        (*it).setOutput(res.unwrap());
+        data.setOutput(res.unwrap());
     }
 
     return Result(Ok, e.back().getOutput());
