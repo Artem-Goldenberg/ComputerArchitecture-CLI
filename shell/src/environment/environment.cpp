@@ -13,5 +13,5 @@ std::string Environment::getVar(const std::string str) const {
 }
 
 void Environment::addVar(const std::string key, const std::string value) {
-    m_variables.insert(std::make_pair(key, value));
+    m_variables[key] = value;
 }
