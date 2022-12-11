@@ -33,8 +33,6 @@ class AssigmentCommand : public Command {
     
     private:
         Environment* m_env;
-    
-        bool validate(std::string name);
 };
 
 class ExternalCommand : public Command {

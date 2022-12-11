@@ -1,22 +1,20 @@
 #include "commandExecutor.h"
 #include <iostream>
 
-using namespace std;
-
 int main() {
-    cout << "CommandExecutor test 0 start:\n";
+    std::cout << "CommandExecutor test 0 start:" << std::endl;
     
     CommandData echo("echo");
     echo.addArgument("something");
     
     Pipe* pipe = new Pipe();
-    shared_ptr<Pipe> p(pipe);
+    std::shared_ptr<Pipe> p(pipe);
     echo.setOutputPipe(p);
     
     CommandData wc("wc");
     wc.setInputPipe(p);
     
-    vector<CommandData> data;
+    std::vector<CommandData> data;
     data.push_back(echo);
     data.push_back(wc);
     
@@ -24,7 +22,7 @@ int main() {
     CommandExecutor e(&env);
     Result res = e.process(data);
     
-    cout << "CommandExecutor test 0 end\n";
+    std::cout << "CommandExecutor test 0 end" << std::endl;
     
     if (!res.isOk()) return 1;
     if (res.unwrap() != "1 1 9") return 1;

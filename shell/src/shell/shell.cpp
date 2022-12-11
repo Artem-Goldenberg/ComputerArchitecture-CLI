@@ -5,8 +5,16 @@
 #include "preprocessor.h"
 #include "parser.h"
 #include "environment.h"
+#include <csignal>
 
 #define SHELL_EXIT_SYMBOL "exit: _EXIT"
+
+static std::function<void(int)> endGracefuly;
+
+static void signalHandler (int signum) {
+    endGracefuly(signum);
+    exit(signum);
+};
 
 Shell::Shell() :
     m_env(new Environment()),
@@ -14,7 +22,16 @@ Shell::Shell() :
     m_Preprocessor(new Preprocessor()),
     m_Lexer(new Lexer()),
     m_Parser(new Parser()),
-    m_CommandExecutor(new CommandExecutor(m_env)) {}
+    m_CommandExecutor(new CommandExecutor(m_env))
+{
+    endGracefuly = [&] (int signum) {
+        std::move(m_IO)->writeResponce(std::string("\nCaptured SIGINT(") + std::to_string(signum) + ") signal. Gracefully shutting down...");
+    };
+    std::signal(
+        SIGINT,
+        signalHandler
+    );
+}
 
 Shell::~Shell() {
     delete m_IO;
@@ -30,7 +47,9 @@ void Shell::runPipeline() {
     while(true) {
         std::string req = m_IO->getRequest();
         
-        if (req.empty()) continue;
+        if (req.empty()) {
+            continue;
+        }
 
         Result ans_prep_res = m_Preprocessor->substitute(req, *m_env);
         if(!ans_prep_res.isOk()) {
