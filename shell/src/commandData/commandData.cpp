@@ -65,7 +65,8 @@ std::string CommandData::getInput() {
 }
 
 std::string CommandData::getOutput() {
-    return m_output->read();
+    if (m_output) return m_output->read();
+    return "";
 }
 
 void CommandData::setOutput(std::string data) {
